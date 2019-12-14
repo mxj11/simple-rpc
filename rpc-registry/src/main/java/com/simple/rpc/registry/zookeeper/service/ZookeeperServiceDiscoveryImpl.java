@@ -2,18 +2,15 @@ package com.simple.rpc.registry.zookeeper.service;
 
 import com.alibaba.fastjson.JSON;
 import com.simple.rpc.common.utils.CollectionUtils;
-import com.simple.rpc.core.ServiceDiscovery;
 import com.simple.rpc.core.model.ServiceRegistryInfo;
 import com.simple.rpc.registry.zookeeper.curator.ZookeeperOperator;
 import com.simple.rpc.registry.zookeeper.curator.ZookeeperService;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class ServiceDiscoveryImpl implements ServiceDiscovery {
+public class ZookeeperServiceDiscoveryImpl {
 
-    @Override
     public List<ServiceRegistryInfo> discover() {
         List<ServiceRegistryInfo> serviceRegistryInfoList = new ArrayList<>();
         ZookeeperOperator zookeeperOperator = new ZookeeperService();
