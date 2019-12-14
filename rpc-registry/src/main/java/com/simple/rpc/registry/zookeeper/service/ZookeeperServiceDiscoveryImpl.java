@@ -13,7 +13,7 @@ public class ZookeeperServiceDiscoveryImpl {
 
     public List<ServiceRegistryInfo> discover() {
         List<ServiceRegistryInfo> serviceRegistryInfoList = new ArrayList<>();
-        ZookeeperOperator zookeeperOperator = new ZookeeperService();
+        ZookeeperOperator zookeeperOperator = new ZookeeperService(registerUrl);
         try {
             List<String> list = zookeeperOperator.getChildren("/rpc");
             System.out.println("list=" + list);

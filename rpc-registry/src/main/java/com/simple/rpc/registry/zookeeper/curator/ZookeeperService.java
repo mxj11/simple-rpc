@@ -22,12 +22,12 @@ public class ZookeeperService implements ZookeeperOperator {
     //创建连接实例
     private CuratorFramework client = null;
 
-    public ZookeeperService() {
+    public ZookeeperService(String registerUrl) {
         ZookeeperConfig zookeeperConfig = GlobalConfig.getInstance().getZookeeperConfig();
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(zookeeperConfig.getRetryIntervalTime(),
                 zookeeperConfig.getMaxRetries());
         client = CuratorFrameworkFactory.builder()
-                .connectString(zookeeperConfig.getZookeeperConnectInfo())
+                .connectString(registerUrl)
                 .sessionTimeoutMs(zookeeperConfig.getSessionTimeoutMs())
                 .connectionTimeoutMs(zookeeperConfig.getConnectTimeoutMs())
                 .retryPolicy(retryPolicy)

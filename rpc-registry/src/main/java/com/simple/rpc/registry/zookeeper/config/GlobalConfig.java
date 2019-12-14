@@ -18,7 +18,6 @@ public class GlobalConfig {
         zookeeperConfig = new ZookeeperConfig();
         zookeeperConfig.setRetryIntervalTime(Integer.parseInt(getConfig().getProperty("zookeeper.retryIntervalTime")));
         zookeeperConfig.setMaxRetries(Integer.parseInt(getConfig().getProperty("zookeeper.maxRetries")));
-        zookeeperConfig.setZookeeperConnectInfo(getConfig().getProperty("zookeeper.zookeeperConnectInfo"));
         zookeeperConfig.setSessionTimeoutMs(Integer.parseInt(getConfig().getProperty("zookeeper.sessionTimeoutMs")));
         zookeeperConfig.setConnectTimeoutMs(Integer.parseInt(getConfig().getProperty("zookeeper.connectTimeoutMs")));
     }

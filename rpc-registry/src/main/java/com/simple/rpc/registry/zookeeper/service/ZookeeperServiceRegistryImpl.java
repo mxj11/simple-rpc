@@ -8,7 +8,7 @@ import com.simple.rpc.registry.zookeeper.curator.ZookeeperService;
 
 public class ZookeeperServiceRegistryImpl {
     public boolean register(String registerUrl, ServiceRegistryInfo serviceRegistryInfo) {
-        ZookeeperOperator zookeeperOperator = new ZookeeperService();
+        ZookeeperOperator zookeeperOperator = new ZookeeperService(registerUrl);
         try {
             String path = "/rpc/" + serviceRegistryInfo.getServiceName() + "/" + serviceRegistryInfo.getInterfaceName();
             String ephemeralNode = zookeeperOperator.createEphemeralNode(path, JSON.toJSONString(serviceRegistryInfo));
