@@ -15,6 +15,7 @@
         <module>rpc-network</module>
         <module>rpc-sdk</module>
         <module>rpc-loadbalance</module>
+        <module>rpc-demo</module>
     </modules>
 
 

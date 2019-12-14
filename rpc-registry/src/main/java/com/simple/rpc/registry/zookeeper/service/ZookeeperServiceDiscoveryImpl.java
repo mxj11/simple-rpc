@@ -11,8 +11,9 @@ import java.util.List;
 
 public class ZookeeperServiceDiscoveryImpl {
 
-    public List<ServiceRegistryInfo> discover() {
+    public List<ServiceRegistryInfo> discover(String registerUrl) {
         List<ServiceRegistryInfo> serviceRegistryInfoList = new ArrayList<>();
+        registerUrl = registerUrl.replace("zookeeper://", "");
         ZookeeperOperator zookeeperOperator = new ZookeeperService(registerUrl);
         try {
             List<String> list = zookeeperOperator.getChildren("/rpc");
@@ -21,15 +22,9 @@ public class ZookeeperServiceDiscoveryImpl {
                 return serviceRegistryInfoList;
             }
             for (String childPath : list) {
-                List<String> grandChildPathList = zookeeperOperator.getChildren("/rpc/" + childPath);
-                if (CollectionUtils.isEmpty(grandChildPathList)) {
-                    return serviceRegistryInfoList;
-                }
-                for (String grandChildPath : grandChildPathList) {
-                    String data = zookeeperOperator.getData("/rpc/" + childPath + "/" + grandChildPath);
-                    ServiceRegistryInfo serviceRegistryInfo = JSON.parseObject(data, ServiceRegistryInfo.class);
-                    serviceRegistryInfoList.add(serviceRegistryInfo);
-                }
+                String data = zookeeperOperator.getData("/rpc/" + childPath);
+                ServiceRegistryInfo serviceRegistryInfo = JSON.parseObject(data, ServiceRegistryInfo.class);
+                serviceRegistryInfoList.add(serviceRegistryInfo);
             }
         } catch (Exception e) {
             e.printStackTrace();

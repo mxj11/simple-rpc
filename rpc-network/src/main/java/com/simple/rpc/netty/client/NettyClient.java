@@ -12,7 +12,7 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 
 public class NettyClient {
-    public void connect(int port,String host) throws InterruptedException {
+    public void connect(String host, int port, final CallBack callBack) throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
         try{
             Bootstrap bootstrap = new Bootstrap();
@@ -23,7 +23,7 @@ public class NettyClient {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(new LineBasedFrameDecoder(1024));
                             ch.pipeline().addLast(new StringDecoder());
-                            ch.pipeline().addLast(new TimeClientHandler());
+                            ch.pipeline().addLast(new TimeClientHandler(callBack));
                         }
                     });
             //发起异步连接操作

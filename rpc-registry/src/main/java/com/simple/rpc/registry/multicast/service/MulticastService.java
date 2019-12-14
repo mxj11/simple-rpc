@@ -12,7 +12,7 @@ public class MulticastService implements Registry {
     }
 
     @Override
-    public List<ServiceRegistryInfo> discover() {
+    public List<ServiceRegistryInfo> discover(String registerUrl) {
         return null;
     }
 }

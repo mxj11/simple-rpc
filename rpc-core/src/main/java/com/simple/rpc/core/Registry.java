@@ -17,7 +17,8 @@ public interface Registry {
     /**
      * 服务发现
      *
+     * @param registerUrl 注册的url
      * @return 注册列表
      */
-    List<ServiceRegistryInfo> discover();
+    List<ServiceRegistryInfo> discover(String registerUrl);
 }

@@ -7,11 +7,10 @@ import com.simple.rpc.exception.NotSupportException;
 import com.simple.rpc.registry.multicast.service.MulticastService;
 import com.simple.rpc.registry.zookeeper.service.ZookeeperRegisterService;
 
+import java.util.List;
+
 public class RegisterManager {
-    Registry registerService = null;
-
     private RegisterManager() {
-
     }
 
     private static class RegisterHolder {
@@ -22,18 +21,24 @@ public class RegisterManager {
         return RegisterHolder.INSTANCE;
     }
 
-    public void initRegistry(String registerUrl, ServiceRegistryInfo serviceRegistryInfo) {
-        if (StringUtils.isEmpty(registerUrl)) {
-            throw new IllegalArgumentException("registerUrl is empty");
-        }
+    public void register(String registerUrl, ServiceRegistryInfo serviceRegistryInfo) {
+        getRegistry(registerUrl).register(registerUrl, serviceRegistryInfo);
+    }
+
+    public List<ServiceRegistryInfo> discover(String registerUrl) {
+        Registry registry = getRegistry(registerUrl);
+        return registry.discover(registerUrl);
+    }
+
+    private Registry getRegistry(String registerUrl) {
+        Registry registerService = null;
         if (registerUrl.startsWith("zookeeper://")) {
             registerService = new ZookeeperRegisterService();
-            registerUrl = registerUrl.replace("zookeeper://", "");
         } else if (registerUrl.startsWith("multicast://")) {
             registerService = new MulticastService();
         } else {
             throw new NotSupportException("not support url register");
         }
-        registerService.register(registerUrl, serviceRegistryInfo);
+        return registerService;
     }
 }

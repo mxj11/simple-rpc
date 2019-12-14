@@ -3,16 +3,10 @@ package com.simple.rpc.core.model;
 import lombok.Data;
 
 @Data
-public class ServiceConfig {
-    /**
-     * 注册中心url
-     */
-    private String registerUrl;
+public class ServiceConfig<T> {
+    private Class<T> clz;
 
-    /**
-     * 注册信息
-     */
-    private ServiceRegistryInfo serviceRegistryInfo;
+    private T service;
 
     /**
      * 底层网络框架信息

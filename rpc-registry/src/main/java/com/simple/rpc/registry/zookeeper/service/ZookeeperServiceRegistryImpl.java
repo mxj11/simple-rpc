@@ -8,9 +8,10 @@ import com.simple.rpc.registry.zookeeper.curator.ZookeeperService;
 
 public class ZookeeperServiceRegistryImpl {
     public boolean register(String registerUrl, ServiceRegistryInfo serviceRegistryInfo) {
+        registerUrl = registerUrl.replace("zookeeper://", "");
         ZookeeperOperator zookeeperOperator = new ZookeeperService(registerUrl);
         try {
-            String path = "/rpc/" + serviceRegistryInfo.getServiceName() + "/" + serviceRegistryInfo.getInterfaceName();
+            String path = "/rpc/" + serviceRegistryInfo.getInterfaceName();
             String ephemeralNode = zookeeperOperator.createEphemeralNode(path, JSON.toJSONString(serviceRegistryInfo));
             if (StringUtils.isEmpty(ephemeralNode)) {
                 retryRegister(registerUrl, serviceRegistryInfo);
@@ -30,7 +31,7 @@ public class ZookeeperServiceRegistryImpl {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("retry to register");
+        System.out.println("|register failed|try to reRegister");
         register(registerUrl, serviceRegistryInfo);
     }
 }
