@@ -37,5 +37,7 @@
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: org.apache.curator:curator-recipes:4.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.16.10" level="project" />
+    <orderEntry type="module" module-name="rpc-loadbalance" />
+    <orderEntry type="module" module-name="rpc-proxy" />
   </component>
 </module>

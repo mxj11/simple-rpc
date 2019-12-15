@@ -1,29 +1,33 @@
 package com.simple.rpc;
 
+import com.alibaba.fastjson.JSON;
 import com.simple.rpc.common.utils.CollectionUtils;
 import com.simple.rpc.common.utils.IpUtils;
 import com.simple.rpc.core.model.ClientConfig;
 import com.simple.rpc.core.model.ServiceConfig;
 import com.simple.rpc.core.model.ServiceRegistryInfo;
+import com.simple.rpc.core.model.RpcRequest;
 import com.simple.rpc.netty.client.CallBack;
 import com.simple.rpc.network.NetworkManager;
+import com.simple.rpc.proxy.ProxyManager;
 import com.simple.rpc.registry.RegisterManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Data;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
-public class ApplicationContext<T> {
+public class ApplicationContext {
     private ServiceConfig serviceConfig;
 
     private ClientConfig clientConfig;
+
+    private static ConcurrentHashMap<String, List<ServiceRegistryInfo>> registryMap = new ConcurrentHashMap<String, List<ServiceRegistryInfo>>();
 
     public ApplicationContext(String registerUrl, ServiceConfig serviceConfig, ClientConfig clientConfig) {
         this.serviceConfig = serviceConfig;
@@ -36,12 +40,24 @@ public class ApplicationContext<T> {
         // 获取服务注册列表
         List<ServiceRegistryInfo> serviceRegistryInfoList = RegisterManager.getInstance().discover(registerUrl);
         System.out.println("|discovery service|service info list|" + serviceRegistryInfoList);
+        registryMap.put("registry", serviceRegistryInfoList);
+        if (serviceConfig != null) {
+            // 底层网络框架服务端初始化
+            NetworkManager.getInstance().initServer(serviceConfig.getNetworkConfig());
+        }
+    }
 
-        if (clientConfig != null) {
+    public <T> T getService(Class<T> clz) {
+        return ProxyManager.getProxy(clz, (proxy, method, args) -> {
+            List<ServiceRegistryInfo> serviceRegistryInfoList = registryMap.get("registry");
             if (!CollectionUtils.isEmpty(serviceRegistryInfoList)) {
                 NetworkManager.getInstance().initClient(serviceRegistryInfoList.get(0).getHost(), 8850, new CallBack() {
                     public void channelActive(ChannelHandlerContext context) {
-                        byte[] message = ("hello" + System.getProperty("line.separator")).getBytes();
+                        RpcRequest rpcRequest = new RpcRequest();
+                        rpcRequest.setMethodName(method.getName());
+                        rpcRequest.setInterfaceName(method.getDeclaringClass().getName());
+                        String json = JSON.toJSONString(rpcRequest);
+                        byte[] message = (json + System.getProperty("line.separator")).getBytes();
                         ByteBuf buffer = Unpooled.buffer(message.length);
                         buffer.writeBytes(message);
                         context.writeAndFlush(buffer);
@@ -56,20 +72,7 @@ public class ApplicationContext<T> {
                     }
                 });
             }
-        }
-
-        if (serviceConfig != null) {
-            // 底层网络框架服务端初始化
-            NetworkManager.getInstance().initServer(serviceConfig.getNetworkConfig());
-        }
-    }
-
-    public T getService(Class clazz) {
-        return (T) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{clazz}, new InvocationHandler() {
-            public T invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
-                return null;
-            }
+            return null;
         });
     }
 
@@ -78,7 +81,7 @@ public class ApplicationContext<T> {
         Class clz = serviceConfig.getClz();
         String interfaceName = clz.getName();
         serviceRegistryInfo.setInterfaceName(interfaceName);
-        List<String> methods = new ArrayList<String>();
+        List<String> methods = new ArrayList<>();
         Method[] declaredMethods = clz.getDeclaredMethods();
         for (Method method : declaredMethods) {
             methods.add(method.getName());
